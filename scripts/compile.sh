@@ -11,6 +11,8 @@ GIT_BRANCH="master"
 SDK_FILE="warsow_14_sdk.tar.gz"
 SDK_URL="http://www.warsow.eu/${SDK_FILE}"
 
+MAKE_TARGETS="all"
+
 cleanDir() {
     cd "${BUILD_DIR}"
     rm -rf "libsrcs" "source"
@@ -29,6 +31,12 @@ if [[ "$1" == "warsow" ]]; then
     wget "${SDK_URL}"
     tar -xvf "${SDK_FILE}" "source"
     mv "source" "${PROJECT}"
+elif [[ "$1" == "racesow" ]]; then
+	PROJECT="racesow"
+	GIT_URL="http://github.com/MGXRace/racesow"
+	GIT_BRANCH="master"
+	MAKE_TARGETS="game cgame ui ded"
+	git clone -b "${GIT_BRANCH}" "${GIT_URL}"
 else
     git clone -b "${GIT_BRANCH}" "${GIT_URL}"
 fi
@@ -47,7 +55,7 @@ echo "> *********************************************************"
 
 cleanDir
 . compile_libs.sh "lin" "x64"
-. compile_source.sh "lin" "x64"
+. compile_source.sh "lin" "x64" "${MAKE_TARGETS}"
 cp -r ${BUILD_DIR}/source/release/* "${RELEASE_DIR}/"
 
 echo "> *********************************************************"
@@ -56,7 +64,7 @@ echo "> *********************************************************"
 
 cleanDir
 schroot -c wheezy-i386 compile_libs.sh "lin" "x86"
-schroot -c wheezy-i386 compile_source.sh "lin" "x86"
+schroot -c wheezy-i386 compile_source.sh "lin" "x86" "${MAKE_TARGETS}"
 cp -r ${BUILD_DIR}/source/release/* "${RELEASE_DIR}/"
 
 echo "> *********************************************************"
@@ -65,7 +73,7 @@ echo "> *********************************************************"
 
 cleanDir
 . compile_libs.sh "win32" "x64"
-. compile_source.sh "win32" "x64"
+. compile_source.sh "win32" "x64" "${MAKE_TARGETS}"
 cp -r ${BUILD_DIR}/source/release/* "${RELEASE_DIR}/"
 
 echo "> *********************************************************"
@@ -74,7 +82,7 @@ echo "> *********************************************************"
 
 cleanDir
 . compile_libs.sh "win32" "x86"
-. compile_source.sh "win32" "x86"
+. compile_source.sh "win32" "x86" "${MAKE_TARGETS}"
 cp -r ${BUILD_DIR}/source/release/* "${RELEASE_DIR}/"
 
 echo "> *********************************************************"

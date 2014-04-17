@@ -24,6 +24,7 @@ DEPENDENCIES=(
     libvorbis-dev
     libfreetype6-dev
     libtheora-dev
+    zip
 )
 
 if [ $# -gt 0 ]; then

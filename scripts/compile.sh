@@ -1,22 +1,38 @@
 #!/bin/bash
+# Usage:
+#     ./compile.sh <project> [make targets]
+
 # We assume the cwd is the scripts folder
+CACHE_DIR="${HOME}/.qf-buildbot"
 SCRIPT_DIR="${PWD}"
 BUILD_DIR="${PWD}/../tmp"
 INCLUDE_DIR="${PWD}/../inc"
 RELEASE_DIR="${PWD}/../release"
+RELEASE_ID="$(date +%Y%m%d)"
 
-PROJECT="qfusion"
-GIT_URL="http://github.com/viciious/qfusion"
-GIT_BRANCH="master"
-SDK_FILE="warsow_14_sdk.tar.gz"
-SDK_URL="http://www.warsow.eu/${SDK_FILE}"
+
+if [ -z "$2" ]; then
+    MAKE_TARGETS="all"
+else${@:3}
+    MAKE_TARGETS="${@:3}"
+fi
 
 MAKE_TARGETS="all"
+
+updateGit() {
+    if [ ! -d "${CACHE_DIR}/${PROJECT}" ]; then
+        git clone -b "${GIT_BRANCH}" "${GIT_URL}" "${CACHE_DIR}/${PROJECT}"
+    else
+        cd "${CACHE_DIR}/${PROJECT}"
+        git checkout "${GIT_BRANCH}"
+        git pull
+    fi
+}
 
 cleanDir() {
     cd "${BUILD_DIR}"
     rm -rf "libsrcs" "source"
-    cp -r "${PROJECT}/libsrcs" "${PROJECT}/source" "./"
+    cp -r "${CACHE_DIR}/${PROJECT}/libsrcs" "${CACHE_DIR}/${PROJECT}/source" "./"
     cd "${BUILD_DIR}/tools/cross_compile"
 }
 
@@ -28,17 +44,29 @@ mkdir -p "${BUILD_DIR}" && cd "$_"
 
 if [[ "$1" == "warsow" ]]; then
     PROJECT="warsow_14"
-    wget "${SDK_URL}"
-    tar -xvf "${SDK_FILE}" "source"
+    BASE_DIR="${RELEASE_DIR}/basewsw"
+    SDK_FILE="warsow_14_sdk.tar.gz"
+    SDK_URL="http://www.warsow.eu/${SDK_FILE}"
+
+    if [ ! -e "${CACHE_DIR}/${SDK_FILE}" ]; then
+        wget -O "${CACHEDIR}/${SDK_FILE}" "${SDK_URL}"
+    fi
+    tar -xvf "${CACHE_DIR}/${SDK_FILE}" "source"
     mv "source" "${PROJECT}"
+
 elif [[ "$1" == "racesow" ]]; then
-	PROJECT="racesow"
-	GIT_URL="http://github.com/MGXRace/racesow"
-	GIT_BRANCH="master"
-	MAKE_TARGETS="game cgame ui ded"
-	git clone -b "${GIT_BRANCH}" "${GIT_URL}"
+    PROJECT="racesow"
+    BASE_DIR="${RELEASE_DIR}/racesow"
+    GIT_URL="http://github.com/MGXRace/racesow"
+    GIT_BRANCH="master"
+    updateGit
+
 else
-    git clone -b "${GIT_BRANCH}" "${GIT_URL}"
+    PROJECT="qfusion"
+    BASE_DIR="${RELEASE_DIR}/base"
+    GIT_URL="http://github.com/viciious/qfusion"
+    GIT_BRANCH="master"
+    updateGit
 fi
 
 echo "> *********************************************************"
@@ -90,7 +118,9 @@ echo "> * Packaging Builds"
 echo "> *********************************************************"
 
 cd ${SCRIPT_DIR}
-tar -pczf "${PROJECT}-$(date +%Y.%m.%d.%H.%M).tar.gz" "${RELEASE_DIR}/"
+zip ${BASE_DIR}/modules_${RELEASE_ID}_pure.pk3 ${BASE_DIR}/{cgame*,game*,ui*}
+rm -f ${BASE_DIR}/{cgame*,game*,ui*}
+tar -pczf "${PROJECT}-${RELEASE_ID}.tar.gz" ${RELEASE_DIR}/*
 
 echo "> *********************************************************"
 echo "> * Cleaning working files"

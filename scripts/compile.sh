@@ -128,7 +128,7 @@ echo "> * Packaging Builds"
 echo "> *********************************************************"
 
 cd ${SCRIPT_DIR}
-zip ${BASE_DIR}/modules_${RELEASE_ID}_pure.pk3 ${BASE_DIR}/{cgame*,game*,ui*}
+zip -j ${BASE_DIR}/modules_${RELEASE_ID}_pure.pk3 ${BASE_DIR}/{cgame*,game*,ui*}
 rm -f ${BASE_DIR}/{cgame*,game*,ui*}
 tar -pczf "${PROJECT}-${RELEASE_ID}.tar.gz" ${RELEASE_DIR}/*
 

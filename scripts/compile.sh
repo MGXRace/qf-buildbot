@@ -2,6 +2,16 @@
 # Usage:
 #     ./compile.sh <project> [make targets]
 
+if [ ! -f setup.sh ]; then
+	echo "Execute this from the qf-buildbot/scripts directory"
+	return
+fi
+
+if [ "$0" = "-bash" ]; then
+	echo "Please run this script from a bash shell (simply type ``bash``)"
+	return
+fi
+
 # We assume the cwd is the scripts folder
 CACHE_DIR="${HOME}/.qf-buildbot"
 SCRIPT_DIR="${PWD}"
@@ -13,8 +23,8 @@ RELEASE_ID="$(date +%Y%m%d)"
 
 if [ -z "$2" ]; then
     MAKE_TARGETS="all"
-else${@:3}
-    MAKE_TARGETS="${@:3}"
+else
+    MAKE_TARGETS="${@:2}"
 fi
 
 MAKE_TARGETS="all"

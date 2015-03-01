@@ -27,8 +27,6 @@ else
     MAKE_TARGETS="${@:2}"
 fi
 
-MAKE_TARGETS="all"
-
 updateGit() {
     if [ ! -d "${CACHE_DIR}/${PROJECT}" ]; then
         git clone -b "${GIT_BRANCH}" "${GIT_URL}" "${CACHE_DIR}/${PROJECT}"
